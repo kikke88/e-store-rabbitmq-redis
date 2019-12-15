@@ -1,14 +1,14 @@
 ## E-store
 
-###General enunciation
+**General enunciation**
 Messages are forwarded via RabbitMQ. Data is stored in Redis. The buyer can view the goods, add to the cart, in the end get the shopping done.
 
-###Data storage
+**Data storage**
 Storing information in Redis data structure. Shopping cart and all products - in hash. Product hash: name - cost - quantity - article - category(can be several)
 
 >Client <---> RabbitMQ <--->  Store logic <---> Redis
 
-###Available commands:
+**Available commands:**
 
 * add_to_cart *(product article)*  *(quantity of products)*
 * rem_from_cart *(item_num)*
@@ -23,7 +23,7 @@ Storing information in Redis data structure. Shopping cart and all products - in
 
 Note: It is provided parallel work of several clients.
 
-###How to run
+**How to run**
 
 Firstly, run
 
