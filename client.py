@@ -3,7 +3,13 @@ import sys
 import threading
 import json
 
-
+def is_int(input):
+    try:
+        num = int(input)
+    except ValueError:
+        return False
+    return True
+    
 def recieve_message_from_server(my_id):
 	def callback(ch, method, properties, body):
 		ans = json.loads(body)
@@ -39,7 +45,8 @@ while flag:
 		request[0] == 'add_to_cart' and len(request) != 3 or
 		request[0] in ['get_stat', 'rem_from_cart', 'show_category'] and len(request) != 2 or
 		request[0] in ['help', 'buy', 'discard', 'show_all', 'list_category', 'show_cart'] and len(request) != 1 or
-		request[0] == 'get_stat' and request[1] not in get_stat_arg):
+		request[0] == 'get_stat' and request[1] not in get_stat_arg or
+		request[0] == 'add_to_cart' and is_int(request[2]) == False):
 		print('--------------\nBAD COMMAND\n--------------')
 	elif request[0] == 'help':
 		print(	'add_to_cart *item number* *quantity of items*\n',

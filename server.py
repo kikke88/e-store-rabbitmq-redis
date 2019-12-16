@@ -3,7 +3,7 @@ import sys
 import json
 import redis
 
-bigHash = redis.Redis(db=48)
+bigHash = redis.Redis(db=14)
 
 bigHash.flushall()
 
@@ -13,7 +13,7 @@ bigHash.hmset("0101", {'product_name':'Intel i5 m460', 'quantity':'1', 'cost':'2
 bigHash.hmset("0010", {'product_name':'Pilot\t', 'quantity':'13', 'cost':'4', 'category':'Pen|Blue'})
 bigHash.hmset("1111", {'product_name':'Asus F53s', 'quantity':'1', 'cost':'388', 'category':'Notebook|Black'})
 
-categoryHash=redis.Redis(db=49)
+categoryHash=redis.Redis(db=15)
 
 for key in bigHash.keys():
 	cur_category = bigHash.hget(key, "category").decode("utf-8")
