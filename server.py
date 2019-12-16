@@ -55,7 +55,7 @@ def callback(ch, method, properties, body):
 	chnl_in_dict = dict_with_chanels.get(rec_mes[0])
 	if chnl_in_dict == None:
 		total_customers += 1
-		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat = 0))
 		channel_server_to_client = connection.channel()
 		channel_server_to_client.queue_declare(queue=rec_mes[0] + '_queue')
 		dict_with_chanels[rec_mes[0]] = channel_server_to_client
@@ -70,8 +70,8 @@ def callback(ch, method, properties, body):
 			dict_with_consumers_basket[rec_mes[0]].hset(rec_mes[2], "quantity", rec_mes[3])
 			ans = 'Done\n'
 	elif rec_mes[1] == 'rem_from_cart':
-		if dict_with_consumers_basket[rec_mes[0]].hexist(rec_mes[2], "quantity") == False:
-			ans = "This product is not in backet"
+		if dict_with_consumers_basket[rec_mes[0]].hexists(rec_mes[2], "quantity") == False:
+			ans = "This product is not in backet\n"
 		else:
 			dict_with_consumers_basket[rec_mes[0]].hdel(rec_mes[2], "quantity")
 			ans = 'Done\n'
@@ -124,6 +124,7 @@ def callback(ch, method, properties, body):
 						bigHash.hincrby(key, 'quantity', -wanted_quantity)
 				else:
 					flag = True
+				dict_with_consumers_basket[rec_mes[0]].hdel(key, "quantity")
 			if flag == True:
 				products += 'Note: One or more products have run out\n'
 			ans += products + 'Total\n' + str(total) + '\n'
@@ -142,10 +143,16 @@ def callback(ch, method, properties, body):
 			ans += key.decode('utf-8') + '\n'
 	elif rec_mes[1] == 'show_cart':
 		keys = dict_with_consumers_basket[rec_mes[0]].keys()
+		flag = False
 		for key in keys:
+			if bigHash.hexists(key,'product_name') == False:
+				flag = True
+				continue
 			name = bigHash.hget(key, 'product_name')
 			num = dict_with_consumers_basket[rec_mes[0]].hget(key, 'quantity')
 			ans += (num + b'x' + name).decode('utf-8') + '\n'
+			if flag == True:
+				ans += 'Note: One or more products have run out\n'
 	elif rec_mes[1] == 'show_category':
 		if categoryHash.hexists(rec_mes[2], "items") == False:
 			ans = 'Wrong category\n'
@@ -188,7 +195,7 @@ def callback(ch, method, properties, body):
 	dict_with_chanels[rec_mes[0]].basic_publish(exchange='', routing_key=rec_mes[0] + '_queue', body = json.dumps(ans))	
 
 my_id = 'server'
-connection = pika.BlockingConnection(pika.ConnectionParameters(host = 'localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host = 'localhost', heartbeat = 0))
 channel = connection.channel()
 ex_name = 'server_exchange'
 ex_que_name = 'server_exchange_queue'

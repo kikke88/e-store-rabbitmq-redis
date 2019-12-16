@@ -14,7 +14,7 @@ def recieve_message_from_server(my_id):
 		print('--------------')
 		return
 
-	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat = 0))
 	channel_server_to_client = connection.channel()
 	channel_server_to_client.queue_declare(queue=my_id + '_queue')
 	channel_server_to_client.basic_consume(queue=my_id + '_queue', on_message_callback=callback, auto_ack=True)
@@ -26,7 +26,7 @@ my_id = sys.argv[1]
 thread = threading.Thread(target = recieve_message_from_server, args = (my_id,))
 thread.start()
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host = 'localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host = 'localhost', heartbeat = 0))
 channel = connection.channel()
 channel.exchange_declare(exchange = 'server_exchange', exchange_type = 'fanout')
 flag = True
@@ -36,11 +36,10 @@ while flag:
 	request = input().split()
 	if 	(len(request) == 0 or 
 		request[0] not in command_list or
-		request[0] == 'get_stat' and request[1] not in get_stat_arg or
 		request[0] == 'add_to_cart' and len(request) != 3 or
 		request[0] in ['get_stat', 'rem_from_cart', 'show_category'] and len(request) != 2 or
-		request[0] in ['get_stat', 'rem_from_cart', 'show_category'] and len(request) != 2 or
-		request[0] in ['help', 'buy', 'discard', 'show_all', 'list_category', 'show_cart'] and len(request) != 1):
+		request[0] in ['help', 'buy', 'discard', 'show_all', 'list_category', 'show_cart'] and len(request) != 1 or
+		request[0] == 'get_stat' and request[1] not in get_stat_arg):
 		print('--------------\nBAD COMMAND\n--------------')
 	elif request[0] == 'help':
 		print(	'add_to_cart *item number* *quantity of items*\n',
