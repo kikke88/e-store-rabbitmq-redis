@@ -46,7 +46,8 @@ while flag:
 		request[0] in ['get_stat', 'rem_from_cart', 'show_category'] and len(request) != 2 or
 		request[0] in ['help', 'buy', 'discard', 'show_all', 'list_category', 'show_cart'] and len(request) != 1 or
 		request[0] == 'get_stat' and request[1] not in get_stat_arg or
-		request[0] == 'add_to_cart' and is_int(request[2]) == False):
+		request[0] == 'add_to_cart' and is_int(request[2]) == False or
+		request[0] == 'add_to_cart' and is_int(request[2]) == True and int(request[2]) <= 0):
 		print('--------------\nBAD COMMAND\n--------------')
 	elif request[0] == 'help':
 		print(	'add_to_cart *item number* *quantity of items*\n',
